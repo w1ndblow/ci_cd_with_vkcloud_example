@@ -28,3 +28,5 @@ jobs:
     - name: Run Tests
       run: |
         python manage.py test
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag ${{ github.repository }}:${{ env.GITHUB_SHA}}-$(date +%s)
