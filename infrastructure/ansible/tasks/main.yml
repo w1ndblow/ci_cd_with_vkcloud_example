@@ -1,0 +1,11 @@
+---
+# tasks file for .
+
+- name: "Configuring apt" 
+  import_tasks: apt.yml
+
+- name: "Installing docker"
+  import_tasks: docker.yml
+
+- name: "Installing runner"
+  import_tasks: ci.yml

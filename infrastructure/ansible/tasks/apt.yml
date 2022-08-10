@@ -1,0 +1,9 @@
+- name: Enable apt daily
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+  loop:
+    - apt-daily.service
+    - apt-daily.timer
+    - apt-daily-upgrade.service
+    - apt-daily-upgrade.timer

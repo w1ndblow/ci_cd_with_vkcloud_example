@@ -1,0 +1,23 @@
+- name: Install prerequisite packages
+  apt:
+    name:
+      - libpq-dev
+      - linux-libc-dev
+      - libc6-dev
+    state: present
+    update_cache: yes
+
+# curl -SL https://github.com/docker/compose/releases/download/v2.6.1/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+
+- name: Get binary
+  uri:
+    url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-linux-x86_64
+    dest: /usr/local/bin/docker-compose
+    mode: "u+x,g+x,o+x"
+
+
+- name: Create symbolic link 
+  file:
+    src:  /usr/local/bin/docker-compose
+    dest: /usr/bin/docker-compose
+    state: link
