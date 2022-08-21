@@ -1,0 +1,44 @@
+version: '3' # Версия спецификации docker-compose
+
+services: # Раздел описания сервисов
+  web: # Описываем сервис нашего веб-приложения
+    container_name: web # Наименование контейнера приложения
+    build:
+      context: . # Папка, где находится Dockerfile, из которого будет создан контейнер
+    volumes:
+      - web-static:/usr/src/app/static # Вынесение статики в отдельный том
+    env_file:
+      - .env # Указание файла с переменными окружения
+    environment:
+      - NGINX_PORT
+      - DB_NAME=${POSTGRES_DB}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_HOST=${POSTGRES_HOST}
+      - DB_PORT=5432
+#    networks:
+#      - udw-avia # Подключение контейнера к общей сети udw-avia-dev
+    # создание и накатывание миграций, сбор статики и запуск сервера разработки
+    command: bash -c "python manage.py makemigrations --settings=settings_production &&
+      python manage.py migrate --settings=settings_production &&
+      python manage.py collectstatic --noinput --settings=settings_production &&
+      gunicorn django_project.wsgi:application --settings=settings_production --bind 0.0.0.0:8000"
+
+  nginx: # Описываем сервис с веб-сервером nginx
+    container_name: nginx-udw-avia # Наименование контейнера
+    image: nginx:latest # Официальный образ nginx, на базе которого будет создаваться контейнер
+    ports:
+      - ${NGINX_PORT:-8001}:9000 # Проброс портов. Если есть переменная окружения NGINX_PORT, то будет взято её значение, иначе будет 8000
+    depends_on:
+      - web # Запуск контейнера, после успешного запуска контейнера с веб-приложением
+    volumes:
+      - ../config/nginx.conf:/etc/nginx/conf.d/default.conf:ro # Проброс файла с описанием виртуальных хостов nginx
+      - web-static:/usr/src/app/static # Проброс тома со статикой, что бы веб-сервер мог её кэшировать
+
+
+volumes: # Раздел с томами, используемыми в сервисах
+  web-static:
+
+#networks: # Раздел с сетями, используемыми в сервисах
+#  udw-avia:
+#    driver: bridge

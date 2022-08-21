@@ -21,3 +21,40 @@
     src:  /usr/local/bin/docker-compose
     dest: /usr/bin/docker-compose
     state: link
+
+# curl \
+#  -X POST \
+#  -H "Accept: application/vnd.github+json" \ 
+#  -H "Authorization: token <TOKEN>" \
+#  https://api.github.com/repos/OWNER/REPO/actions/runners/registration-token
+- name: Get token for runner
+  uri:
+    url: https://api.github.com/repos/{{github_owner}}/{{github_repo}}/actions/runners/registration-token
+    method: POST
+    headers:
+      Accept: application/vnd.github+json
+      Authorization: token {{github_authtoken}}
+  register: runner_token
+
+# curl -o actions-runner-linux-x64-2.295.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.295.0/actions-runner-linux-x64-2.295.0.tar.gz
+
+# - name: Get binary runner
+#   uri:
+#     url: https://github.com/actions/runner/releases/download/v2.295.0/actions-runner-linux-x64-2.295.0.tar.gz
+#     dest: actions-runner-linux-x64-2.295.0.tar.gz
+#     mode: "u+x,g+x,o+x"
+
+- name: Unarchive a file that needs to be downloaded (added in 2.0)
+  unarchive:
+    src: https://github.com/actions/runner/releases/download/v2.295.0/actions-runner-linux-x64-2.295.0.tar.gz
+    dest: actions-runner
+
+- name: Configure runner
+  shell: ./config.sh --url https://github.com/{{github_owner}}/{{github_repo}} --token {{runner_token.token}}
+  args:
+    chdir: actions-runner
+
+- name: Install service
+  shell: ./svc.sh install ubuntu
+  args:
+    chdir: actions-runner

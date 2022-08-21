@@ -16,7 +16,7 @@ chmod +x /usr/local/bin/terraform
 ```
 Настройка terraform
 ```
-cat <<EOF > ~/terraformrc
+cat <<EOF > ~/.terraformrc
 provider_installation {
   network_mirror {
     url = "https://hub.mcs.mail.ru/repository/terraform-providers/"

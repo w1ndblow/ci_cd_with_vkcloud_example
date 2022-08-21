@@ -67,6 +67,7 @@ resource "vkcs_db_instance" "db-instance" {
 
 network {
     uuid = "${openstack_networking_network_v2.generic.id}"
+    fixed_ip_v4 = "192.168.1.10"
 }
 
 datastore {
@@ -97,7 +98,7 @@ resource "openstack_compute_instance_v2" "test-instance" {
     delete_on_termination = true
   }
 
-  metadata = {
+  metadata = {  
     env = "dev"
   }
 
@@ -125,3 +126,44 @@ resource "vkcs_networking_secgroup_rule" "testhttp" {
 }
 
 
+resource "local_file" "inventory" {
+  content = templatefile("${path.module}/inventory.tpl",
+    {
+      ip = openstack_compute_instance_v2.test-instance.network[0].fixed_ip_v4
+    }
+  )
+  filename = "../inventory"
+}
+
+resource "vkcs_db_database" "app" {
+  name        = "appdb"
+  dbms_id     = "${vkcs_db_instance.db-instance.id}"
+  charset     = "utf8"
+}
+
+resource "vkcs_db_user" "app_user" {
+  name        = "app_user"
+  password    = "${random_string.resource_code.result}"
+  dbms_id     = "${vkcs_db_instance.db-instance.id}"
+  
+  databases   = ["${vkcs_db_database.app.name}"]
+}
+
+resource "random_string" "resource_code" {
+  length  = 10
+  special = false
+  upper   = false
+}
+
+output "database" {
+  value = "db_password ${random_string.resource_code.result} ${vkcs_db_instance.db-instance.network[0].fixed_ip_v4}"
+}
+
+resource "local_file" "prod_env" {
+  content = templatefile("${path.module}/env.tpl",
+    {
+      host = vkcs_db_instance.db-instance.network[0].fixed_ip_v4
+    }
+  )
+  filename = "../../.github/prod_env"
+}
