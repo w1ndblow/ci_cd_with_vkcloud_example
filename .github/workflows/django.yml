@@ -40,7 +40,7 @@ jobs:
         docker-compose build
     - name: "Execute tests in container"
       run: |
-        docker run --env DB_USER=$POSTGRES_DB --env DB_PASSWORD=$POSTGRES_PASSWORD  web  python manage.py test
+        docker run ci_cd_with_vkcloud_example_web python manage.py test
   deploy:
     needs: [build]
     runs-on: self-hosted
