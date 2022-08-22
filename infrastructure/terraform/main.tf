@@ -12,7 +12,8 @@ required_providers {
 }
 }
 
-
+# System volume with Ubuntu 18.04 for virtual machine
+# check 00_openstack.sh 
 resource "openstack_blockstorage_volume_v2" "test-volume" {
   name        = "test-volume"
   volume_type = "dp1"

@@ -8,8 +8,10 @@ echo "[0m"
 
 read
 echo "вывод команды"
-cd $2
-$1
+if [ -z "$2"]; then
+    cd $2;
+fi
 
+eval $1
 }
 
