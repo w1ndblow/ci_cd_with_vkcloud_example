@@ -1,1 +1,1 @@
-DB_HOST=${host}
+POSTGRES_HOST=${host}
