@@ -8,10 +8,12 @@ echo "[0m"
 
 read
 echo "вывод команды"
-if [ -z "$2"]; then
+if [ ! -z "$2" ]; then
     cd $2;
 fi
 
-eval $1
+echo $(pwd)
+$1
+
 }
 
