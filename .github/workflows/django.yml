@@ -38,7 +38,6 @@ jobs:
         echo "POSTGRES_USER=$POSTGRES_USER" >> .env
         echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env
         docker-compose build
-        docker-compose up -d db
     - name: "Execute tests in container"
       run: |
         docker run --env DB_USER=$POSTGRES_DB --env DB_PASSWORD=$POSTGRES_PASSWORD  web  python manage.py test
