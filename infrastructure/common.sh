@@ -13,7 +13,7 @@ if [ ! -z "$2" ]; then
 fi
 
 echo $(pwd)
-$1
+eval $1
 
 }
 

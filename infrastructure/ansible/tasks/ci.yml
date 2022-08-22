@@ -64,11 +64,7 @@
 
 - name: Configure runner
   become: no
-  shell: >
-    ./config.sh --url https://github.com/{{github_owner}}/{{github_repo}} 
-    --token {{runner_token.json.token}} 
-    --name vkcs --runnergroup default 
-    --labels self-hosted,vkcs --work _work
+  shell: ./config.sh --url https://github.com/{{github_owner}}/{{github_repo}} --token {{runner_token.json.token}} --name vkcs --runnergroup default --labels self-hosted,vkcs --work _work
   args:
     chdir: actions-runner
 
