@@ -34,27 +34,50 @@
     headers:
       Accept: application/vnd.github+json
       Authorization: token {{github_authtoken}}
+    status_code: 201
   register: runner_token
+  
 
 # curl -o actions-runner-linux-x64-2.295.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.295.0/actions-runner-linux-x64-2.295.0.tar.gz
 
-# - name: Get binary runner
-#   uri:
-#     url: https://github.com/actions/runner/releases/download/v2.295.0/actions-runner-linux-x64-2.295.0.tar.gz
-#     dest: actions-runner-linux-x64-2.295.0.tar.gz
-#     mode: "u+x,g+x,o+x"
+- name: Get binary runner
+  uri:
+    url: https://github.com/actions/runner/releases/download/v2.295.0/actions-runner-linux-x64-2.295.0.tar.gz
+    follow_redirects: all
+    dest: /tmp/actions-runner-linux-x64-2.295.0.tar.gz
 
-- name: Unarchive a file that needs to be downloaded (added in 2.0)
-  unarchive:
-    src: https://github.com/actions/runner/releases/download/v2.295.0/actions-runner-linux-x64-2.295.0.tar.gz
-    dest: actions-runner
+
+- name: Create a directory if it does not exist
+  become: no
+  file:
+    path: actions-runner
+    state: directory
+
+- name: Unarchive a file that needs to be downloaded
+  become: no
+  shell: tar -xf /tmp/actions-runner-linux-x64-2.295.0.tar.gz
+  args:
+    chdir: actions-runner
+
+# - debug:
+#     var: runner_token
 
 - name: Configure runner
-  shell: ./config.sh --url https://github.com/{{github_owner}}/{{github_repo}} --token {{runner_token.token}}
+  become: no
+  shell: >
+    ./config.sh --url https://github.com/{{github_owner}}/{{github_repo}} 
+    --token {{runner_token.json.token}} 
+    --name vkcs --runnergroup default 
+    --labels self-hosted,vkcs --work _work
   args:
     chdir: actions-runner
 
 - name: Install service
-  shell: ./svc.sh install ubuntu
+  shell: ./svc.sh install
   args:
     chdir: actions-runner
+
+- name: Start service 
+  service:
+    name: actions.runner.{{github_owner}}-{{github_repo}}.vkcs.service
+    state: started

@@ -129,7 +129,7 @@ resource "vkcs_networking_secgroup_rule" "testhttp" {
 resource "local_file" "inventory" {
   content = templatefile("${path.module}/inventory.tpl",
     {
-      ip = openstack_compute_instance_v2.test-instance.network[0].fixed_ip_v4
+      ip = openstack_networking_floatingip_v2.myip.address
     }
   )
   filename = "../inventory"
