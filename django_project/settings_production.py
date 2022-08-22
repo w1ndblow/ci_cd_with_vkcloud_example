@@ -12,10 +12,6 @@ DATABASES = {
         'PASSWORD': os.environ.get('DB_PASSWORD','app'),
         'HOST': os.environ.get('DB_HOST', 'db'),
         'PORT': os.environ.get('DB_PORT', '5432')
-        # 'OPTIONS': {
-        #     # 'service': 'vkcs_service',
-        #     # 'passfile': '.passfile',
-        # }
     }
 }
 
