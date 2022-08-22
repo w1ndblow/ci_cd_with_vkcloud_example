@@ -16,13 +16,14 @@ services: # Раздел описания сервисов
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - DB_HOST=${POSTGRES_HOST}
       - DB_PORT=5432
+      - DJANGO_SETTINGS_MODULE='django_project.settings_production'
 #    networks:
 #      - udw-avia # Подключение контейнера к общей сети udw-avia-dev
     # создание и накатывание миграций, сбор статики и запуск сервера разработки
-    command: bash -c "python manage.py makemigrations --settings=settings_production &&
-      python manage.py migrate --settings=settings_production &&
-      python manage.py collectstatic --noinput --settings=settings_production &&
-      gunicorn django_project.wsgi:application --settings=settings_production --bind 0.0.0.0:8000"
+    command: bash -c "DJANGO_SETTINGS_MODULE='django_project.settings_production' python manage.py makemigrations &&
+      python manage.py migrate  &&
+      python manage.py collectstatic --noinput &&
+      gunicorn django_project.wsgi:application --bind 0.0.0.0:8000"
 
   nginx: # Описываем сервис с веб-сервером nginx
     container_name: nginx # Наименование контейнера
