@@ -1,5 +1,8 @@
-from settings import *
 import os
+import sys 
+myPath = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, myPath)
+from settings import *
 
 DATABASES = {
     'default': {

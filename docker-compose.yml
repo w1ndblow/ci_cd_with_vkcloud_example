@@ -25,14 +25,14 @@ services: # Раздел описания сервисов
       gunicorn django_project.wsgi:application --settings=settings_production --bind 0.0.0.0:8000"
 
   nginx: # Описываем сервис с веб-сервером nginx
-    container_name: nginx-udw-avia # Наименование контейнера
+    container_name: nginx # Наименование контейнера
     image: nginx:latest # Официальный образ nginx, на базе которого будет создаваться контейнер
     ports:
-      - ${NGINX_PORT:-8001}:9000 # Проброс портов. Если есть переменная окружения NGINX_PORT, то будет взято её значение, иначе будет 8000
+      - ${NGINX_PORT:-80}:80 # Проброс портов. Если есть переменная окружения NGINX_PORT, то будет взято её значение, иначе будет 8000
     depends_on:
       - web # Запуск контейнера, после успешного запуска контейнера с веб-приложением
     volumes:
-      - ../config/nginx.conf:/etc/nginx/conf.d/default.conf:ro # Проброс файла с описанием виртуальных хостов nginx
+      - configs/nginx.conf:/etc/nginx/conf.d/default.conf:ro # Проброс файла с описанием виртуальных хостов nginx
       - web-static:/usr/src/app/static # Проброс тома со статикой, что бы веб-сервер мог её кэшировать
 
 
