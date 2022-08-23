@@ -3,7 +3,7 @@
 source common.sh
 
 echo "Введите github token:"
-read github_token
+read -s github_token
 
 github_owner=$(git remote -v | head -n 1 | cut -d ":" -f2 | cut -d "/" -f1) 
 github_repo=$(git remote -v | head -n 1 | cut -d ":" -f2 | cut -d "/" -f2| cut -d "." -f1) 
