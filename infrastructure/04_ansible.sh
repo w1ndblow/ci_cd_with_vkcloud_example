@@ -2,6 +2,8 @@
 
 source common.sh
 
+run_command "tree ansible"
+
 echo "Введите github token:"
 read -s github_token
 
