@@ -11,27 +11,20 @@ required_providers {
 
 }
 }
-
-# System volume with Ubuntu 18.04 for virtual machine
-# check 00_openstack.sh 
-resource "openstack_blockstorage_volume_v2" "test-volume" {
-  name        = "test-volume"
-  volume_type = "dp1"
-  size        = "20"
-  image_id    = "e0144f62-cbac-4363-9c3d-dbc7ea799f6d"
-}
-
+#########################
+##          Network
 
 resource "openstack_networking_network_v2" "generic" {
   name = "network-generic"
 }
 
+# Наша внешняя сеть называется в наше облоке ext-net 
 resource "openstack_networking_router_v2" "generic" {
   name                = "router-generic"
   external_network_id = "298117ae-3fa4-4109-9e08-8be5602be5a2"
 }
 
-
+# Создаём локальную сеть
 resource "openstack_networking_subnet_v2" "local" {
   name            = "local"
   network_id      = openstack_networking_network_v2.generic.id
@@ -39,12 +32,13 @@ resource "openstack_networking_subnet_v2" "local" {
   dns_nameservers = ["8.8.8.8", "8.8.8.4"]
 }
 
-# Router interface configuration
+# Router 
 resource "openstack_networking_router_interface_v2" "local" {
   router_id = openstack_networking_router_v2.generic.id
   subnet_id = openstack_networking_subnet_v2.local.id
 }
 
+# Cоздаём floating ip для того чтобы поподать на виртуалку по внешнему ip
 resource "openstack_networking_floatingip_v2" "myip" {
   pool = "ext-net"
 }
@@ -55,6 +49,52 @@ resource "openstack_compute_floatingip_associate_v2" "ip-test-instance" {
 }
 
 
+#########################
+##    Virtual machine 
+
+# System volume with Ubuntu 18.04 for virtual machine
+# check 00_openstack.sh 
+resource "openstack_blockstorage_volume_v2" "test-volume" {
+  name        = "test-volume"
+  volume_type = "dp1"
+  size        = "20"
+  image_id    = "e0144f62-cbac-4363-9c3d-dbc7ea799f6d"
+}
+
+resource "openstack_compute_instance_v2" "test-instance" {
+  name              = "test-instance"
+  flavor_id         = "25ae869c-be29-4840-8e12-99e046d2dbd4"
+  key_pair          = "${var.keypair_name}"
+  availability_zone = "MS1"
+  config_drive      = true
+
+  security_groups = [
+    "default",
+    "ssh+www"
+  ]
+
+  block_device {
+    uuid                  = "${openstack_blockstorage_volume_v2.test-volume.id}"
+    source_type           = "volume"
+    boot_index            = 0
+    destination_type      = "volume"
+    delete_on_termination = true
+  }
+
+  metadata = {  
+    env = "dev"
+  }
+
+  network {
+    uuid = "${openstack_networking_network_v2.generic.id}"
+  }
+}
+
+
+#########################
+##   Database 
+
+# Cозадаем instance СУБД
 resource "vkcs_db_instance" "db-instance" {
   name        = "db-instance"
   keypair     = "${var.keypair_name}"
@@ -77,69 +117,17 @@ datastore {
 }
 }
 
-
-resource "openstack_compute_instance_v2" "test-instance" {
-  name              = "test-instance"
-  flavor_id         = "25ae869c-be29-4840-8e12-99e046d2dbd4"
-  key_pair          = "${var.keypair_name}"
-  availability_zone = "MS1"
-  config_drive      = true
-
-  security_groups = [
-    "default",
-    "testhttp",
-    "ssh+www"
-  ]
-
-  block_device {
-    uuid                  = "${openstack_blockstorage_volume_v2.test-volume.id}"
-    source_type           = "volume"
-    boot_index            = 0
-    destination_type      = "volume"
-    delete_on_termination = true
-  }
-
-  metadata = {  
-    env = "dev"
-  }
-
-  network {
-    uuid = "${openstack_networking_network_v2.generic.id}"
-  }
-}
-
-
-resource "vkcs_networking_secgroup" "testhttp" {
-  name        = "testhttp"
-  description = "http port for tests"
-}
-
-
-
-resource "vkcs_networking_secgroup_rule" "testhttp" {
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 8000
-  port_range_max    = 8080
-  remote_ip_prefix  = "0.0.0.0/0"
-  security_group_id = "${vkcs_networking_secgroup.testhttp.id}"
-}
-
-
-resource "local_file" "inventory" {
-  content = templatefile("${path.module}/inventory.tpl",
-    {
-      ip = openstack_networking_floatingip_v2.myip.address
-    }
-  )
-  filename = "../inventory"
-}
-
 resource "vkcs_db_database" "app" {
   name        = "appdb"
   dbms_id     = "${vkcs_db_instance.db-instance.id}"
   charset     = "utf8"
+}
+
+# Генерим пароль для базы
+resource "random_string" "resource_code" {
+  length  = 10
+  special = false
+  upper   = false
 }
 
 resource "vkcs_db_user" "app_user" {
@@ -150,10 +138,16 @@ resource "vkcs_db_user" "app_user" {
   databases   = ["${vkcs_db_database.app.name}"]
 }
 
-resource "random_string" "resource_code" {
-  length  = 10
-  special = false
-  upper   = false
+#########################
+##   Output 
+
+resource "local_file" "inventory" {
+  content = templatefile("${path.module}/inventory.tpl",
+    {
+      ip = openstack_networking_floatingip_v2.myip.address
+    }
+  )
+  filename = "../inventory"
 }
 
 output "database" {
