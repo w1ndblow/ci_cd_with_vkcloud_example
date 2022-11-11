@@ -142,3 +142,6 @@ terraform.tfstate.backup
 
 # localbase
 db.sqlite3
+
+# env_files
+.github/prod_env
