@@ -1,0 +1,5 @@
+---
+# tasks file for .
+
+- name: "Installing runner"
+  import_tasks: ci.yml

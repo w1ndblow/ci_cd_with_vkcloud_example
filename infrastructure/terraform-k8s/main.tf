@@ -26,3 +26,13 @@ resource "vkcs_kubernetes_cluster" "k8s-cluster" {
   availability_zone   = "MS1"
   insecure_registries = ["1.2.3.4"]
 }
+
+# TODO описать переменные
+resource "vkcs_kubernetes_node_group" "groups" {
+    cluster_id = vkcs_kubernetes_cluster.k8s-cluster.id
+
+    node_count = 1
+    name = "default"
+    max_nodes = 5
+    min_nodes = 1
+}
