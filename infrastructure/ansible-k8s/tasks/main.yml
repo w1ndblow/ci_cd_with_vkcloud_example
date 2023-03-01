@@ -3,3 +3,6 @@
 
 - name: "Installing runner"
   import_tasks: ci.yml
+
+- name: "Installing ingress"
+  import_tasks: ingress.yml

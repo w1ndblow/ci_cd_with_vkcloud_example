@@ -1,0 +1,26 @@
+- name: Add helm rupo
+  shell: >
+    helm repo add nginx-stable https://helm.nginx.com/stable
+
+- name: Install helm
+  environment:
+    KUBECONFIG: ../k8s-cluster_kubeconfig.yaml
+  shell: helm upgrade -i nginx-ingress-http nginx-stable/nginx-ingress \
+          --create-namespace --namespace nginx-ingress \
+          --set controller.service.create=false
+
+- name: Copy file with owner and permission, using symbolic representation
+  copy:
+    src: loadbalancer.yml
+    dest: /tmp/loadbalancer.yml
+
+# - name: Add needed object
+#   environment:
+#     KUBECONFIG: ../k8s-cluster_kubeconfig.yaml
+#   shell: kubectl create ns nginx-ingress
+
+- name: Add needed object
+  environment:
+    KUBECONFIG: ../k8s-cluster_kubeconfig.yaml
+  shell: kubectl apply -f \
+           /tmp/loadbalancer.yml
