@@ -33,7 +33,7 @@ jobs:
           }
         }
         }" >> ~/.docker/config.json
-        echo -n 'username:password' | base64
+        cat ~/.docker/config.json
         docker build . -t windblow/django_example:$GITHUB_SHA
         # docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD
         docker push windblow/django_example:$GITHUB_SHA
