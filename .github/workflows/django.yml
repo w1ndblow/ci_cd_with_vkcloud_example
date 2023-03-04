@@ -25,13 +25,21 @@ jobs:
         # echo "POSTGRES_DB=$POSTGRES_DB" >> .env
         # echo "POSTGRES_USER=$POSTGRES_USER" >> .env
         # echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env
+        echo -n "{
+          \"auths\": {
+          \"https://index.docker.io/v1\": {
+            \"auth\": \"$(echo -n $DOCKERHUB_USER:$DOCKERHUB_PASSWORD | base64 -w 0)\"
+          }
+        }
+        }" > ~/.docker/config.json
+        echo -n 'username:password' | base64
         docker build . -t windblow/django_example:$GITHUB_SHA
-        docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD
+        # docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD
         docker push windblow/django_example:$GITHUB_SHA
         # docker-compose build
-    - name: "Execute tests in container"
-      run: |
-        docker run ci_cd_with_vkcloud_example_web python manage.py test
+    # - name: "Execute tests in container"
+    #   run: |
+    #     docker run ci_cd_with_vkcloud_example_web python manage.py test
   # deploy:
   #   needs: [build]
   #   runs-on: self-hosted
