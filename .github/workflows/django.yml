@@ -22,15 +22,11 @@ jobs:
     - uses: actions/checkout@v3
     - name: "Build docker container"
       run: |
-        mkdir -p ~/.docker/ ;
-        echo -n "{ 
-          \"auths\": {
-          \"https://index.docker.io/v1\": {
-            \"auth\": \"$(echo -n $DOCKERHUB_USER:$DOCKERHUB_PASSWORD | base64 -w 0)\" 
-            }}}" >> ~/.docker/config.json ;
-        cat ~/.docker/config.json ;
-        docker build . -t windblow/django_example:$GITHUB_SHA ;
-        docker push windblow/django_example:$GITHUB_SHA ;
+        mkdir -p ~/.docker/ 
+        echo -n "{ \"auths\": { \"https://index.docker.io/v1\": { \"auth\": \"$(echo -n $DOCKERHUB_USER:$DOCKERHUB_PASSWORD | base64 -w 0)\" }}}" >> ~/.docker/config.json
+        cat ~/.docker/config.json 
+        docker build . -t windblow/django_example:$GITHUB_SHA 
+        docker push windblow/django_example:$GITHUB_SHA 
     # - name: "Execute tests in container"
     #   run: |
     #     docker run ci_cd_with_vkcloud_example_web python manage.py test
