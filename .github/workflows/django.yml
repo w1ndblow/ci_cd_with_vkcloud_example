@@ -10,6 +10,7 @@ env:
   POSTGRES_DB: "appdb" 
   POSTGRES_USER: "app_user"
   POSTGRES_PASSWORD: ${{ secrets.PostgresPass }} 
+  DOCKERHUB_PASSWORD: ${{ secrets.DockerhubPass }}
 
 jobs:
   build:
@@ -20,25 +21,28 @@ jobs:
     - uses: actions/checkout@v3
     - name: "Build docker container"
       run: |
-        source .github/prod_env
-        echo "POSTGRES_DB=$POSTGRES_DB" >> .env
-        echo "POSTGRES_USER=$POSTGRES_USER" >> .env
-        echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env
-        docker-compose build
+        # source .github/prod_env
+        # echo "POSTGRES_DB=$POSTGRES_DB" >> .env
+        # echo "POSTGRES_USER=$POSTGRES_USER" >> .env
+        # echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env
+        docker build . -t windblow/django_example:$GITHUB_SHA
+        docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD
+        docker push windblow/django_example:$GITHUB_SHA
+        # docker-compose build
     - name: "Execute tests in container"
       run: |
         docker run ci_cd_with_vkcloud_example_web python manage.py test
-  deploy:
-    needs: [build]
-    runs-on: self-hosted
-    steps:
-    - uses: actions/checkout@v3
-    - name: Deploy to stage
-      run: |
-        source .github/prod_env
-        echo "POSTGRES_DB=$POSTGRES_DB" >> .env
-        echo "POSTGRES_USER=$POSTGRES_USER" >> .env
-        echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env
-        echo "POSTGRES_HOST=$POSTGRES_HOST" >> .env
-        docker-compose build
-        docker-compose up -d
+  # deploy:
+  #   needs: [build]
+  #   runs-on: self-hosted
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Deploy to stage
+  #     run: |
+  #       source .github/prod_env
+  #       echo "POSTGRES_DB=$POSTGRES_DB" >> .env
+  #       echo "POSTGRES_USER=$POSTGRES_USER" >> .env
+  #       echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env
+  #       echo "POSTGRES_HOST=$POSTGRES_HOST" >> .env
+  #       docker-compose build
+  #       docker-compose up -d
