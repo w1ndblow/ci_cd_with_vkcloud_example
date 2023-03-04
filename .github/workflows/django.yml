@@ -25,13 +25,14 @@ jobs:
         # echo "POSTGRES_DB=$POSTGRES_DB" >> .env
         # echo "POSTGRES_USER=$POSTGRES_USER" >> .env
         # echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env
+        mkdir -p ~/.docker/
         echo -n "{
           \"auths\": {
           \"https://index.docker.io/v1\": {
             \"auth\": \"$(echo -n $DOCKERHUB_USER:$DOCKERHUB_PASSWORD | base64 -w 0)\"
           }
         }
-        }" > ~/.docker/config.json
+        }" >> ~/.docker/config.json
         echo -n 'username:password' | base64
         docker build . -t windblow/django_example:$GITHUB_SHA
         # docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD
