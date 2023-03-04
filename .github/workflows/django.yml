@@ -9,6 +9,7 @@ on:
 env:
   POSTGRES_DB: "appdb" 
   POSTGRES_USER: "app_user"
+  DOCKERHUB_USER: windblow
   POSTGRES_PASSWORD: ${{ secrets.PostgresPass }} 
   DOCKERHUB_PASSWORD: ${{ secrets.DockerhubPass }}
 
