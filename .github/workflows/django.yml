@@ -25,6 +25,8 @@ jobs:
         mkdir -p ~/.docker/ 
         echo -n "{ \"auths\": { \"https://index.docker.io/v1\": { \"auth\": \"$(echo -n $DOCKERHUB_USER:$DOCKERHUB_PASSWORD | base64 -w 0)\" }}}" >> ~/.docker/config.json
         cat ~/.docker/config.json 
+        echo "one"
+        cat ~/.docker/config.json 
         docker build . -t windblow/django_example:$GITHUB_SHA 
         docker push windblow/django_example:$GITHUB_SHA 
     # - name: "Execute tests in container"
