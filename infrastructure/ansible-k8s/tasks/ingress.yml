@@ -5,10 +5,13 @@
 - name: Install helm
   environment:
     KUBECONFIG: ../k8s-cluster_kubeconfig.yaml
-  shell: helm upgrade -i nginx-ingress-http nginx-stable/nginx-ingress \
+  shell: helm upgrade -i --force nginx-ingress-http nginx-stable/nginx-ingress \
           --create-namespace --namespace nginx-ingress \
-          --set controller.service.create=false
-
+          --set controller.service.create=false \
+          --set controller.config.entries.real-ip-header=proxy_protocol \
+          --set controller.config.entries.set-real-ip-from=0.0.0.0/0 \
+          --set-string controller.config.entries.proxy-protocol="True" 
+          
 - name: Copy file with owner and permission, using symbolic representation
   copy:
     src: loadbalancer.yml
