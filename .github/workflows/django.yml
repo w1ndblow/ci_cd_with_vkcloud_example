@@ -47,9 +47,9 @@ jobs:
         #values: |
         #  name: foobar
         value-files: >-
-        [
-          "values.yaml" 
-        ]
+          [
+            "values.yaml" 
+          ]
       env:
         KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
     # - name: Deploy to stage
