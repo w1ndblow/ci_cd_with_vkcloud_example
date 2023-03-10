@@ -37,19 +37,22 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: azure/setup-helm@v3
-    - name: 'Deploy'
-      uses: 'deliverybot/helm@v1'
-      with:
-        release: 'django'
-        namespace: 'default'
-        chart: 'django-chart'
-        # token: '${{ github.token }}'
-        #values: |
-        #  name: foobar
-        value-files: >-
-          [
-            "values.yaml" 
-          ]
+    # - name: 'Deploy'
+    #   uses: 'deliverybot/helm@v1'
+    #   with:
+    #     release: 'django'
+    #     namespace: 'default'
+    #     chart: 'django-chart'
+    #     # token: '${{ github.token }}'
+    #     #values: |
+    #     #  name: foobar
+    #     value-files: >-
+    #       [
+    #         "values.yaml" 
+    #       ]
+    - name: "Deploy"
+      run: |
+        helm upgrade --install --force -f ../values.yaml django django-chart
       env:
         KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
     # - name: Deploy to stage
