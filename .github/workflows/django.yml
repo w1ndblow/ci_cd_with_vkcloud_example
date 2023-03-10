@@ -53,7 +53,8 @@ jobs:
     - name: "Deploy"
       run: |
         echo '${{ secrets.KUBECONFIG }}' > kubeconfig.yml
-        helm upgrade --install --force -f ../values.yaml django django-chart
+        pwd
+        helm upgrade --install --force -f values.yaml django infrastructure/django-chart
       env:
         KUBECONFIG: kubeconfig.yml
     # - name: Deploy to stage
