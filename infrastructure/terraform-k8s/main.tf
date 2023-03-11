@@ -23,7 +23,6 @@ resource "vkcs_kubernetes_cluster" "k8s-cluster" {
   subnet_id              = vkcs_networking_subnet.k8s-subnetwork.id
   floating_ip_enabled    = true
   availability_zone      = "MS1"
-  insecure_registries    = ["1.2.3.4"]
   ingress_floating_ip    = vkcs_networking_floatingip.ingressfip.address
   loadbalancer_subnet_id = vkcs_networking_subnet.k8s-subnetwork.id
 }
@@ -66,80 +65,73 @@ resource "vkcs_lb_pool" "pool" {
   listener_id = "${vkcs_lb_listener.listener.id}"
 }
 
-# TODO floating accociate
-
-# resource "vkcs_networking_router" "router" {
-#   name                = "router"
-#   admin_state_up      = true
-#   external_network_id = data.vkcs_networking_network.extnet.id
-# }
 
 # resource "vkcs_networking_router_interface" "db" {
 #   router_id = vkcs_networking_router.router.id
 #   subnet_id = vkcs_networking_subnet.subnetwork.id
 # }
 
-# data "vkcs_compute_flavor" "db" {
-#   name = "Standard-2-8-50"
-# }
+data "vkcs_compute_flavor" "db" {
+  name = "Standard-2-8-50"
+}
 
-# ### database
-# resource "vkcs_db_instance" "db-instance" {
-#   name        = "db-instance"
-#   #keypair     = "${var.keypair_name}"
-#   flavor_id   = data.vkcs_compute_flavor.db.id
-#   size        = 8
-#   volume_type = "ceph-ssd"
-#   disk_autoexpand {
-#     autoexpand    = true
-#     max_disk_size = 1000
-#   }
+### database
+resource "vkcs_db_instance" "db-instance" {
+  name        = "db-instance"
+  #keypair     = "${var.keypair_name}"
+  flavor_id   = data.vkcs_compute_flavor.db.id
+  size        = 8
+  volume_type = "ceph-ssd"
+  disk_autoexpand {
+    autoexpand    = true
+    max_disk_size = 1000
+  }
 
-# network {
-#     #uuid = "${vkcs_networking_subnet.k8s-subnetwork.id}"
-#     uuid = vkcs_networking_network.k8s.id
-#     #fixed_ip_v4 = "192.168.199.100"
-# }
+network {
+    #uuid = "${vkcs_networking_subnet.k8s-subnetwork.id}"
+    uuid = vkcs_networking_network.k8s.id
+    #fixed_ip_v4 = "192.168.199.100"
+}
 
-# datastore {
-#     version = 13
-#     type    = "postgresql"
-# }
-# }
+datastore {
+    version = 13
+    type    = "postgresql"
+}
+}
 
-# resource "vkcs_db_database" "app" {
-#   name        = "appdb"
-#   dbms_id     = "${vkcs_db_instance.db-instance.id}"
-#   charset     = "utf8"
-# }
+resource "vkcs_db_database" "app" {
+  name        = "appdb"
+  dbms_id     = "${vkcs_db_instance.db-instance.id}"
+  charset     = "utf8"
+}
 
-# # Генерим пароль для базы
-# resource "random_string" "resource_code" {
-#   length  = 10
-#   special = false
-#   upper   = false
-# }
+# Генерим пароль для базы
+resource "random_string" "resource_code" {
+  length  = 10
+  special = false
+  upper   = false
+}
 
-# resource "vkcs_db_user" "app_user" {
-#   name        = "app_user"
-#   password    = "${random_string.resource_code.result}"
-#   dbms_id     = "${vkcs_db_instance.db-instance.id}"
+resource "vkcs_db_user" "app_user" {
+  name        = "app_user"
+  password    = "${random_string.resource_code.result}"
+  dbms_id     = "${vkcs_db_instance.db-instance.id}"
   
-#   databases   = ["${vkcs_db_database.app.name}"]
-# }
+  databases   = ["${vkcs_db_database.app.name}"]
+}
 
-#########################
-##   Output 
+#######################
+#  Output 
 
-# output "database" {
-#   value = "db_password ${random_string.resource_code.result} ${vkcs_db_instance.db-instance.network[0].fixed_ip_v4}"
-# }
+output "database" {
+  value = "db_password ${random_string.resource_code.result} ${vkcs_db_instance.db-instance.ip[0]}"
+}
 
-# resource "local_file" "prod_env" {
-#   content = templatefile("${path.module}/env.tpl",
-#     {
-#       host = vkcs_db_instance.db-instance.network[0].fixed_ip_v4
-#     }
-#   )
-#   filename = "../../.github/prod_env"
-# }
+resource "local_file" "prod_env" {
+  content = templatefile("${path.module}/env.tpl",
+    {
+      host = vkcs_db_instance.db-instance.ip[0]
+    }
+  )
+  filename = "../../.github/prod_env"
+}
