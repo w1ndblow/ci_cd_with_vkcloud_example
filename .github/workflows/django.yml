@@ -37,26 +37,28 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: azure/setup-helm@v3
+      with:
+        version: "3.10.1"
     - name: "Deploy"
       run: |
         source .github/prod_env
-
         helm upgrade --install --atomic --values values.yaml django infrastructure/django-chart \
          --set-string envConfigs.DB_PASSWORD="$POSTGRES_PASSWORD" \
          --set-string envConfigs.DB_HOST="$POSTGRES_HOST" \
          --set image.tag=$GITHUB_SHA \
          --kube-apiserver=https://kubernetes.default \
+         --kube-insecure-skip-tls-verify=true \
          --kube-token=${{ secrets.K8S_CI_TOKEN }} \
          --namespace default
       env:
-        KUBECONFIG: kubeconfig.yml
+        # KUBECONFIG: kubeconfig.yml
         POSTGRES_PASSWORD: ${{ secrets.POSTGRESPASS }}
 
         # curl -sSL \
         #  https://hub.mcs.mail.ru/repository/client-keystone-auth/latest/linux/client-install.sh | bash
         # echo '${{ secrets.KUBECONFIG }}' > kubeconfig.yml
         # source /home/runner/.bashrc
-        # --kube-insecure-skip-tls-verify=true \
+       
         # kubectl config set-cluster k8s --insecure-skip-tls-verify=true --server=https://kubernetes.default
         # kubectl config set-credentials ci --token=${{ secrets.K8S_CI_TOKEN }}
         # kubectl config set-context ci --cluster=k8s --user=ci --namespace=default
