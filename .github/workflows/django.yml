@@ -41,7 +41,7 @@ jobs:
       run: |
         source .github/prod_env
         curl -sSL \
-  https://hub.mcs.mail.ru/repository/client-keystone-auth/latest/linux/client-install.sh | bash
+         https://hub.mcs.mail.ru/repository/client-keystone-auth/latest/linux/client-install.sh | bash
         echo '${{ secrets.KUBECONFIG }}' > kubeconfig.yml
         helm upgrade --install --atomic --values values.yaml django infrastructure/django-chart \
          --set-string envConfigs.DB_PASSWORD="$POSTGRES_PASSWORD" \
