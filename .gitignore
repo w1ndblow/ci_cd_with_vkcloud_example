@@ -134,6 +134,7 @@ dmypy.json
 
 
 infrastructure/terraform/.terraform*
+infrastructure/terraform-k8s/.terraform*
 terraform.tfstate
 inventory
 terraform/variables.tf
@@ -144,4 +145,7 @@ terraform.tfstate.backup
 db.sqlite3
 
 # env_files
-.github/prod_env
+#.github/prod_env
+
+# kubeconf file
+k8s-cluster_kubeconfig.yaml

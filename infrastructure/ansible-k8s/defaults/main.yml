@@ -1,0 +1,3 @@
+---
+# defaults file for .
+docker_version: "18.06*"

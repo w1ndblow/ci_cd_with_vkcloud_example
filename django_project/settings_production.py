@@ -18,4 +18,4 @@ DATABASES = {
 STATIC_URL = 'static/'
 STATIC_ROOT = "static"
 
-ALLOWED_HOSTS.append('web')
+ALLOWED_HOSTS.append('*')

@@ -1,0 +1,41 @@
+# этот скрипт написан по официальному руководтву Action Runner Controller
+# https://actions-runner-controller.github.io/actions-runner-controller/
+
+- name: Installing certmanger
+  environment:
+    KUBECONFIG: ../k8s-cluster_kubeconfig.yaml
+  shell: kubectl apply -f  \
+          https://github.com/cert-manager/cert-manager/releases/download/v1.8.2/cert-manager.yaml
+
+
+- name: Add helm repo
+  shell: >
+    helm repo add actions-runner-controller https://actions-runner-controller.github.io/actions-runner-controller
+
+- name: Install helm
+  environment:
+    KUBECONFIG: ../k8s-cluster_kubeconfig.yaml
+  shell: helm upgrade --install --namespace actions-runner-system --create-namespace \
+          --set=authSecret.create=true \
+          --set=authSecret.github_token="{{github_authtoken}}" \
+          --wait actions-runner-controller actions-runner-controller/actions-runner-controller    
+    
+  
+- name: Render needed object
+  template:
+    src: runnerdeployment.yaml.j2
+    dest: /tmp/runnerdeployment.yaml
+
+- name: Copy manifest of service-account.yaml
+  copy:
+    src: service_account.yaml
+    dest: /tmp/service_account.yaml
+
+- name: Add needed object
+  environment:
+    KUBECONFIG: ../k8s-cluster_kubeconfig.yaml
+  shell: kubectl apply -f \
+           /tmp/{{ item }}
+  with_items: 
+    - service_account.yaml
+    - runnerdeployment.yaml

@@ -1,0 +1,29 @@
+# больше информации про эту возможность
+# https://github.com/kubernetes/cloud-provider-openstack/blob/master/docs/openstack-cloud-controller-manager/expose-applications-using-loadbalancer-type-service.md
+- name: Add helm repo
+  shell: >
+    helm repo add nginx-stable https://helm.nginx.com/stable
+
+- name: Install helm chart
+  environment:
+    KUBECONFIG: ../k8s-cluster_kubeconfig.yaml
+  shell: helm upgrade -i --force nginx-ingress-http nginx-stable/nginx-ingress \
+          --create-namespace --namespace nginx-ingress \
+          --set controller.service.create=false \
+          --set controller.config.entries.real-ip-header=proxy_protocol \
+          --set controller.config.entries.set-real-ip-from=0.0.0.0/0 \
+          --set-string controller.config.entries.proxy-protocol="True" 
+
+ # Cоздание loadbalancer в кластере, который создаст
+ # объект в vkcould, который будет пускать входящий трафик
+ # по протоколу http          
+- name: Copy manifest of loadbalancer.yml
+  copy:
+    src: loadbalancer.yml
+    dest: /tmp/loadbalancer.yml
+
+- name: Add needed object
+  environment:
+    KUBECONFIG: ../k8s-cluster_kubeconfig.yaml
+  shell: kubectl apply -f \
+           /tmp/loadbalancer.yml
