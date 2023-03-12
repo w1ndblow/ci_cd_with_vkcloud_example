@@ -40,6 +40,8 @@ jobs:
     - name: "Deploy"
       run: |
         source .github/prod_env
+        sudo apt install snapd
+        sudo snap install client-keystone-auth
         echo '${{ secrets.KUBECONFIG }}' > kubeconfig.yml
         helm upgrade --install --atomic --values values.yaml django infrastructure/django-chart \
          --set-string envConfigs.DB_PASSWORD="$POSTGRES_PASSWORD" \
