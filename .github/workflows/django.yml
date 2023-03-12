@@ -40,14 +40,15 @@ jobs:
     - name: "Deploy"
       run: |
         source .github/prod_env
-        kubectl config set-cluster k8s --insecure-skip-tls-verify=true --server=https://kubernetes.default
-        kubectl config set-credentials ci --token=${{ secrets.K8S_CI_TOKEN }}
-        kubectl config set-context ci --cluster=k8s --user=ci --namespace=default
-        kubectl config use-context ci
+
         helm upgrade --install --atomic --values values.yaml django infrastructure/django-chart \
          --set-string envConfigs.DB_PASSWORD="$POSTGRES_PASSWORD" \
          --set-string envConfigs.DB_HOST="$POSTGRES_HOST" \
-         --set image.tag=$GITHUB_SHA
+         --set image.tag=$GITHUB_SHA \
+         --kube-apiserver https://146.185.240.104:6443 \
+         --kube-insecure-skip-tls-verify=true \
+         --kube-token=${{ secrets.K8S_CI_TOKEN }} \
+         --namespace default
       env:
         KUBECONFIG: kubeconfig.yml
         POSTGRES_PASSWORD: ${{ secrets.POSTGRESPASS }}
@@ -56,3 +57,8 @@ jobs:
         #  https://hub.mcs.mail.ru/repository/client-keystone-auth/latest/linux/client-install.sh | bash
         # echo '${{ secrets.KUBECONFIG }}' > kubeconfig.yml
         # source /home/runner/.bashrc
+
+        # kubectl config set-cluster k8s --insecure-skip-tls-verify=true --server=https://kubernetes.default
+        # kubectl config set-credentials ci --token=${{ secrets.K8S_CI_TOKEN }}
+        # kubectl config set-context ci --cluster=k8s --user=ci --namespace=default
+        # kubectl config use-context ci
