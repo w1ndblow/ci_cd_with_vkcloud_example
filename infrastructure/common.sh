@@ -1,5 +1,6 @@
 run_command () {
 
+WORK_DIR=$(pwd)
 clear
 if [ ! -z "$2" ]; then
     cd $2;
@@ -18,5 +19,6 @@ echo "вывод команды"
 echo ""
 eval $1
 
+cd $WORK_DIR
 }
 

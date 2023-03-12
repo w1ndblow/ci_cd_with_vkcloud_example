@@ -7,7 +7,7 @@ required_providers {
 }
 
 data "vkcs_kubernetes_clustertemplate" "ct" {
-  version = "1.21.4"
+  version = "1.24"
 }
 
 resource "vkcs_kubernetes_cluster" "k8s-cluster" {
@@ -18,7 +18,7 @@ resource "vkcs_kubernetes_cluster" "k8s-cluster" {
   name                   = "k8s-cluster"
   cluster_template_id    = data.vkcs_kubernetes_clustertemplate.ct.id
   master_flavor          = data.vkcs_compute_flavor.k8s.id
-  master_count           = 1
+  master_count           = 1   
   network_id             = vkcs_networking_network.k8s.id
   subnet_id              = vkcs_networking_subnet.k8s-subnetwork.id
   floating_ip_enabled    = true
@@ -27,7 +27,6 @@ resource "vkcs_kubernetes_cluster" "k8s-cluster" {
   loadbalancer_subnet_id = vkcs_networking_subnet.k8s-subnetwork.id
 }
 
-# TODO описать переменные
 resource "vkcs_kubernetes_node_group" "groups" {
     cluster_id = vkcs_kubernetes_cluster.k8s-cluster.id
 
@@ -44,32 +43,7 @@ resource "vkcs_networking_floatingip" "ingressfip" {
   pool = data.vkcs_networking_network.extnet.name
 }
 
-
-resource "vkcs_lb_loadbalancer" "loadbalancer" {
-  name = "loadbalancer"
-  vip_subnet_id = "${vkcs_networking_subnet.k8s-subnetwork.id}"
-  tags = ["tag1"]
-}
-
-resource "vkcs_lb_listener" "listener" {
-  name = "listener"
-  protocol = "HTTP"
-  protocol_port = 8080
-  loadbalancer_id = "${vkcs_lb_loadbalancer.loadbalancer.id}"
-}
-
-resource "vkcs_lb_pool" "pool" {
-  name = "pool"
-  protocol = "HTTP"
-  lb_method = "ROUND_ROBIN"
-  listener_id = "${vkcs_lb_listener.listener.id}"
-}
-
-
-# resource "vkcs_networking_router_interface" "db" {
-#   router_id = vkcs_networking_router.router.id
-#   subnet_id = vkcs_networking_subnet.subnetwork.id
-# }
+## database
 
 data "vkcs_compute_flavor" "db" {
   name = "Standard-2-8-50"
@@ -102,7 +76,10 @@ datastore {
 resource "vkcs_db_database" "app" {
   name        = "appdb"
   dbms_id     = "${vkcs_db_instance.db-instance.id}"
-  charset     = "utf8"
+  charset     = "utf8" 
+  depends_on = [
+    vkcs_db_instance.db-instance
+  ]
 }
 
 # Генерим пароль для базы
@@ -118,6 +95,9 @@ resource "vkcs_db_user" "app_user" {
   dbms_id     = "${vkcs_db_instance.db-instance.id}"
   
   databases   = ["${vkcs_db_database.app.name}"]
+  depends_on = [
+    vkcs_db_database.app
+  ]
 }
 
 #######################

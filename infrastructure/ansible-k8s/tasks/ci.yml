@@ -1,3 +1,6 @@
+# этот скрипт написан по официальному руководтву Action Runner Controller
+# https://actions-runner-controller.github.io/actions-runner-controller/
+
 - name: Installing certmanger
   environment:
     KUBECONFIG: ../k8s-cluster_kubeconfig.yaml
@@ -5,7 +8,7 @@
           https://github.com/cert-manager/cert-manager/releases/download/v1.8.2/cert-manager.yaml
 
 
-- name: Add helm rupo
+- name: Add helm repo
   shell: >
     helm repo add actions-runner-controller https://actions-runner-controller.github.io/actions-runner-controller
 

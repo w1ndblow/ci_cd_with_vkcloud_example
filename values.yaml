@@ -25,9 +25,13 @@ serviceAccount:
 
 podAnnotations: {}
 
+#
+#
+# эти переменные определяются при каждом commit из ci 
+#
+#
+
 envConfigs:
- #STATIC_ROOT: "staticfiles"
- #CELERY_BROKER_URL: ""
  DB_NAME: "appdb"
  DB_USER: "app_user"
  DB_PASSWORD: "app_password"
@@ -63,6 +67,7 @@ ingress:
     kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
+  # ingress не умеет работать без host
     - host: "django.local"
       paths:
         - path: /
@@ -73,11 +78,11 @@ ingress:
               port:
                 number: 80
 
-
+  # при использовании http
   #tls: []
   #  - secretName: chart-example-tls
   #    hosts:
-  #      - chart-example.local
+  #      - django.local
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

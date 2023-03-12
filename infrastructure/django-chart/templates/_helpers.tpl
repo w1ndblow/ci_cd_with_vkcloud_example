@@ -61,7 +61,9 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
-
+{{/*
+Возможность добавлять environment переменные
+*/}}
 {{- define "django.envVariables" -}}
 {{- if or .Values.envSecrets .Values.envConfigs }} 
 envFrom:

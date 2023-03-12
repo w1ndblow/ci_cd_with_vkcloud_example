@@ -33,7 +33,13 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          #
+          # здесь ну нужно добавить возможность добавлять enviroment переменные неоходимные для django
+          #
           {{- include "django.envVariables" . | nindent 10 }}
+          #
+          # и кастомную команду запуска
+          #
           {{-  with .Values.command }}
           command: ["/bin/sh"]
           args:

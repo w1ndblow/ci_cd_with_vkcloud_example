@@ -1,3 +1,4 @@
+# Добавление env переменных в config map
 {{- if .Values.envConfigs }}
 apiVersion: v1
 kind: ConfigMap
