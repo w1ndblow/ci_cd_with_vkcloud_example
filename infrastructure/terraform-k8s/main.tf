@@ -60,11 +60,12 @@ resource "vkcs_db_instance" "db-instance" {
     autoexpand    = true
     max_disk_size = 1000
   }
+  depends_on = [
+    vkcs_kubernetes_cluster.k8s-cluster
+  ]
 
 network {
-    #uuid = "${vkcs_networking_subnet.k8s-subnetwork.id}"
     uuid = vkcs_networking_network.k8s.id
-    #fixed_ip_v4 = "192.168.199.100"
 }
 
 datastore {
@@ -86,6 +87,7 @@ resource "vkcs_db_database" "app" {
 resource "random_string" "resource_code" {
   length  = 10
   special = false
+  numeric = true
   upper   = false
 }
 
