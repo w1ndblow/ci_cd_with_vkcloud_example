@@ -15,12 +15,13 @@
 - name: Install helm
   environment:
     KUBECONFIG: ../k8s-cluster_kubeconfig.yaml
+  ignore_errors: True
   shell: helm upgrade --install --namespace actions-runner-system --create-namespace \
           --set=authSecret.create=true \
           --set=authSecret.github_token="{{github_authtoken}}" \
-          --wait actions-runner-controller actions-runner-controller/actions-runner-controller    
-    
-  
+          --wait actions-runner-controller actions-runner-controller/actions-runner-controller
+
+
 - name: Render needed object
   template:
     src: runnerdeployment.yaml.j2
