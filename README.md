@@ -19,7 +19,7 @@ chmod +x /usr/local/bin/terraform
 cat <<EOF > ~/.terraformrc
 provider_installation {
   network_mirror {
-    url = "https://hub.mcs.mail.ru/repository/terraform-providers/"
+    url = "https://terraform-mirror.mcs.mail.ru"
     include = ["registry.terraform.io/*/*"]
   }
   direct {
