@@ -98,7 +98,7 @@ resource "openstack_compute_instance_v2" "test-instance" {
 resource "vkcs_db_instance" "db-instance" {
   name        = "db-instance"
   keypair     = "${var.keypair_name}"
-  flavor_id   = "25ae869c-be29-4840-8e12-99e046d2dbd4"
+  flavor_id   = "bf714720-78da-4271-ab7d-0cf5e2613f14"
   size        = 8
   volume_type = "ceph-ssd"
   disk_autoexpand {
