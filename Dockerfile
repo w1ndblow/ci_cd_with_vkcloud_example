@@ -3,7 +3,7 @@ FROM python:3.8
 
 WORKDIR /code
 COPY requirements.txt /code/
-RUN pip install --upgrade pip --progress-bar off && pip install -r requirements.txt--progress-bar off
+RUN pip install --upgrade pip --progress-bar off && pip install -r requirements.txt --progress-bar off
 
 RUN pip install gunicorn --progress-bar off
 
